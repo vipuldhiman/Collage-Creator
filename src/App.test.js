@@ -1,9 +1,8 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import App from "./App";
+import { render, screen } from '@testing-library/react';
+import App from './App';
 
-test("renders collage creator title", () => {
+test('renders learn react link', () => {
   render(<App />);
-  const title = screen.getByText(/Collage Creator/i);
-  expect(title).toBeInTheDocument();
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
 });

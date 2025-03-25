@@ -1,22 +1,24 @@
+// src/components/ExportButton.js
 import React from "react";
 import html2canvas from "html2canvas";
 
 const ExportButton = ({ collageRef }) => {
-    const handleExport = async () => {
-        try {
-            if (collageRef.current) {
-                const canvas = await html2canvas(collageRef.current);
-                const link = document.createElement("a");
-                link.href = canvas.toDataURL("image/png");
-                link.download = "collage.png";
-                link.click();
-            }
-        } catch (error) {
-            console.log("Export failed:", error);
-        }
-    };
+  const handleDownload = () => {
+    if (collageRef.current) {
+      html2canvas(collageRef.current).then((canvas) => {
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/jpeg");
+        link.download = "collage.jpg";
+        link.click();
+      });
+    }
+  };
 
-    return <button onClick={handleExport}>Download Collage</button>;
+  return (
+    <button className="export-button" onClick={handleDownload}>
+      Download Collage
+    </button>
+  );
 };
 
 export default ExportButton;
