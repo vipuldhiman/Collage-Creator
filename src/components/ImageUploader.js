@@ -1,33 +1,31 @@
+// src/components/ImageUploader.js
 import React, { useState } from "react";
+import "../styles.css";
 
-const ImageUploader = ({ onImagesUpload }) => {
+const ImageUploader = ({ onUpload }) => {
   const [images, setImages] = useState([]);
 
-  const handleImageUpload = (event) => {
-    
+  const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
-
-    const imageUrls = files.map((file) => {
-      const url = URL.createObjectURL(file);
-      return url;
-    });
-
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
     setImages(imageUrls);
-
-    if (onImagesUpload) {
-      onImagesUpload(imageUrls);
-    }
+    onUpload(imageUrls);
   };
 
   return (
-    <div className="image-uploader">
-      <input 
-        type="file" 
-        multiple 
-        accept="image/*" 
-        onChange={handleImageUpload} 
-        data-testid="file-input"
-      />
+    <div className="uploader">
+      {/* Styled Upload Button */}
+      <label htmlFor="file-upload" className="upload-button">
+        📷 Choose Images
+      </label>
+      <input id="file-upload" type="file" multiple accept="image/*" onChange={handleFileChange} />
+      
+      {/* Image Preview Section */}
+      <div className="image-preview">
+        {images.map((src, index) => (
+          <img key={index} src={src} alt={`Preview ${index}`} />
+        ))}
+      </div>
     </div>
   );
 };
