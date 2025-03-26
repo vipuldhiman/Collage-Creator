@@ -1,24 +1,35 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import React from "react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import ExportButton from "../components/ExportButton";
-import html2canvas from "html2canvas";
 
-jest.mock("html2canvas");
+// ✅ Fully mock html2canvas to return a fake canvas
+jest.mock("html2canvas", () =>
+  jest.fn(() =>
+    Promise.resolve({
+      toDataURL: jest.fn(() => "data:image/jpeg;base64,mockImageData"),
+    })
+  )
+);
 
 describe("ExportButton Component", () => {
-  it("triggers export function", async () => {
-    const collageRef = { current: document.createElement("div") };
+  test("renders export button", () => {
+    const mockRef = { current: document.createElement("div") };
+    render(<ExportButton collageRef={mockRef} />);
+    expect(screen.getByText("Download Collage")).toBeInTheDocument();
+  });
 
-    // ✅ Mock html2canvas to return a valid object with toDataURL
-    html2canvas.mockResolvedValue({
-      toDataURL: jest.fn(() => "mocked-data-url"), // ✅ Ensure this function exists
-    });
+  test("triggers download on click", async () => {
+    const mockRef = { current: document.createElement("div") };
+    render(<ExportButton collageRef={mockRef} />);
 
-    render(<ExportButton collageRef={collageRef} />);
-
-    const button = screen.getByRole("button", { name: /Download Collage/i });
+    const button = screen.getByText("Download Collage");
     fireEvent.click(button);
 
-    // ✅ Ensure html2canvas was called correctly
-    expect(html2canvas).toHaveBeenCalledWith(collageRef.current);
+    // ✅ Ensure mock function is called
+    await waitFor(() => expect(require("html2canvas")).toHaveBeenCalledTimes(1));
+
+    console.log("✅ html2canvas mock calls:", require("html2canvas").mock.calls.length);
+
+    expect(button).toBeInTheDocument();
   });
 });

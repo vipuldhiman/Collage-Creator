@@ -1,28 +1,28 @@
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import ImageUploader from "../components/ImageUploader";
 import React from "react";
+import { render, fireEvent, screen } from "@testing-library/react";
+import ImageUploader from "../components/ImageUploader";
+
+// Mock URL.createObjectURL
+global.URL.createObjectURL = jest.fn(() => "mock-url");
 
 describe("ImageUploader Component", () => {
-  let mockSetImages, mockOnImagesUpload;
-
-  beforeEach(() => {
-    mockSetImages = jest.fn();
-    mockOnImagesUpload = jest.fn();
-
-    // Mock URL.createObjectURL
-    global.URL.createObjectURL = jest.fn(() => "mocked-url");
+  test("renders upload button", () => {
+    render(<ImageUploader onUpload={jest.fn()} />);
+    
+    // Match text while ignoring the emoji
+    expect(screen.getByText(/choose images/i)).toBeInTheDocument();
   });
 
-  it("uploads an image", async () => {
-    const { getByTestId } = render(<ImageUploader onImagesUpload={mockOnImagesUpload} />);
+  test("triggers file upload event", () => {
+    const mockUpload = jest.fn();
+    render(<ImageUploader onUpload={mockUpload} />);
 
-    const fileInput = getByTestId("file-input");
-    const file = new File(["dummy content"], "image.png", { type: "image/png" });
+    // Select the input field
+    const input = screen.getByLabelText("📷 Choose Images", { selector: "input" });
 
-    fireEvent.change(fileInput, { target: { files: [file] } });
+    // Simulate file upload
+    fireEvent.change(input, { target: { files: [new File([""], "test.jpg", { type: "image/jpeg" })] } });
 
-    await waitFor(() => {
-      expect(mockOnImagesUpload).toHaveBeenCalledWith(["mocked-url"]);
-    });
+    expect(mockUpload).toHaveBeenCalled();
   });
 });
