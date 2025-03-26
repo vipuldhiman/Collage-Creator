@@ -1,24 +1,35 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import CollageOptions from '../components/CollageOptions';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import CollageOptions from "../components/CollageOptions";
 
-test('renders layout selection buttons', () => {
-    render(<CollageOptions onLayoutChange={() => {}} />);
+describe("CollageOptions Component", () => {
+  test("renders layout dropdown", () => {
+    render(<CollageOptions onLayoutChange={jest.fn()} onCustomGridChange={jest.fn()} />);
     
-    const gridButton = screen.getByText(/Grid/i);
-    const verticalButton = screen.getByText(/Vertical/i);
-    const horizontalButton = screen.getByText(/Horizontal/i);
+    // Ensure the first dropdown (layout selection) is present
+    const dropdowns = screen.getAllByRole("combobox");
+    expect(dropdowns.length).toBeGreaterThanOrEqual(1);
+  });
 
-    expect(gridButton).toBeInTheDocument();
-    expect(verticalButton).toBeInTheDocument();
-    expect(horizontalButton).toBeInTheDocument();
-});
+  test("triggers layout change", () => {
+    const mockChange = jest.fn();
+    render(<CollageOptions onLayoutChange={mockChange} onCustomGridChange={jest.fn()} />);
+    
+    // Select the first dropdown (layout selection)
+    const layoutDropdown = screen.getAllByRole("combobox")[0];
+    fireEvent.change(layoutDropdown, { target: { value: "masonry" } });
 
-test('selects a layout when clicked', () => {
-    const mockHandleLayout = jest.fn();
-    render(<CollageOptions onSelectLayout={mockHandleLayout} />);
+    expect(mockChange).toHaveBeenCalledWith("masonry");
+  });
 
-    const gridButton = screen.getByText(/Grid Layout/i);
-    fireEvent.click(gridButton);
+  test("shows custom grid options only for custom layout", () => {
+    render(<CollageOptions onLayoutChange={jest.fn()} onCustomGridChange={jest.fn()} />);
+    
+    // Select "Custom" layout
+    const layoutDropdown = screen.getAllByRole("combobox")[0];
+    fireEvent.change(layoutDropdown, { target: { value: "custom" } });
 
-    expect(mockHandleLayout).toHaveBeenCalledWith('grid');
+    // Ensure the second dropdown (custom grid options) is now visible
+    expect(screen.getByText("Choose a Custom Layout")).toBeInTheDocument();
+  });
 });
